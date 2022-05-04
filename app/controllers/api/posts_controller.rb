@@ -29,7 +29,6 @@ module Api
       end
       finalArray = finalArray.uniq
 
-      # print("lalala #{tags}")
 
       #Step 4: Determine API output
       ######## Case 1: No Tags --> 400 Tags
@@ -40,31 +39,30 @@ module Api
       ######## Case 6: Param String Invalid
 
       if !tags || tags.length == 0
-        return render json: { status: 400, "error": "Tags parameter is required" }
+        return render json: { status: 400, "error": "Tags parameter is required" }, status:400
       elsif !sort && !direction
           sorted = finalArray.sort_by{ |hash| hash["id"]}
-        return render json: { status: 200, posts:sorted}
+        return render json: { status: 200, posts:sorted}, status:200
       elsif (sort && !(sortArray.include? sort)) || (direction && !(directionArray.include? direction))
-        return render json: { status:400, "error": "sortBy parameter is invalid"}
+        return render json: { status:400, "error": "sortBy parameter is invalid"}, status:400
       elsif (sortArray.include? sort) && !direction
         sorted = finalArray.sort_by{ |hash| hash[sort]}
-        # sorted.each{ |hash| puts hash[sort]}
-        return render json: { status:200, message: "SUCCESS", posts: sorted }
+        return render json: { status:200, message: "SUCCESS", posts: sorted }, status:200
       elsif (directionArray.include? direction)
         if (!sort)
           sort = "id"
         end
         if (direction == "desc")
           sorted = finalArray.sort_by{ |hash| hash[sort] }.reverse!
-          # sorted.each{ |hash| puts hash[sort]}
-          return render json: {status:200, message: "SUCCESS", posts: sorted }
+          return render json: {status:200, message: "SUCCESS", posts: sorted }, status:200
         else
           sorted = finalArray.sort_by{ |hash| hash[sort] }
-          return render json: { status:200, message: "SUCCESS", posts: sorted }
+          return render json: { status:200, message: "SUCCESS", posts: sorted }, status:200
         end
       end
 
-      render json: {status:400, message: "Your query parameters are wrong"}
+      render json: {status:400, message: "Your query parameters are wrong"}, status:400
+
     end
   end
 end
@@ -74,15 +72,5 @@ end
 # How can I default the /api/post route to not error out without parameters
 # Parallel GET requests?
 # How do you even write routes in ruby?
+# Errors?? Right now i'm just sending a Json response as the error.
 
-
-#Tests questions
-# Test that router issues GET request to the "index/show? of posts-controller"
-# Test essentially all parameter variations
-# no tags === 400
-# tags not in the array = 200 but empty array
-# tags with wrong sort = 400 sort error
-# tags with correct sort = 200
-# tags with correct sort wrong direction = 400
-# tags with correct sort correct direction = 200
-#
