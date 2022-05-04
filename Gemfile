@@ -17,6 +17,7 @@ gem 'puma', '~> 3.11'
 # gem 'bcrypt', '~> 3.1.7'
 
 gem 'rest-client', '~> 2.1'
+gem 'rspec-rails', '~> 4.0.1'
 # Use ActiveStorage variant
 # gem 'mini_magick', '~> 4.8'
 
