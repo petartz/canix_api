@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   namespace "api" do
-    resources :posts, only: [:index, :show]
+    resources :posts, only: [:index]
+    # get "/api/posts", to: "posts#index"
   end
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+  # RESTful actions: index, show, new, create, edit, update, delete, search
 end

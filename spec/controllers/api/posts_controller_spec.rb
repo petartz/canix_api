@@ -5,31 +5,36 @@ RSpec.describe Api::PostsController, type: :controller do
 
   # Status Testing for tags, sortBy, direction
 
+  # given, when then
+
     #Tags Status Testing
-    it "should return a 400 status with message Tags Parameter Required when tag is nil" do
-      get :index, params: {tags: nil}
-      returned_json = JSON.parse(response.body)
-      expect(response.status).to eq 400
-      expect(returned_json["error"]).to eq "Tags parameter is required"
+    context "if only tag param is supplied" do
+      it "should return a 400 status with message Tags Parameter Required when tag is nil" do
+        get :index, params: {tags: nil}
+        returned_json = JSON.parse(response.body)
+        expect(response.status).to eq 400
+        expect(returned_json["error"]).to eq "Tags parameter is required"
+      end
+
+      it "should return an empty return array for posts when the tag word is not proper" do
+        get :index, params: {tags: "nothing"}
+        returned_json = JSON.parse(response.body)
+        expect(returned_json["posts"].length()).to eq 0
+      end
+
+      it "should return a 200 status when the tag word isn't proper (however posts array is empty)" do
+        get :index, params: {tags: "nothing"}
+        returned_json = JSON.parse(response.body)
+        expect(response.status).to eq 200
+      end
+
+      it "should return a non-zero length posts array, for a proper tag word " do
+        get :index, params: {tags: "culture"}
+        returned_json = JSON.parse(response.body)
+        expect(returned_json["posts"].length()).not_to eq 0
+      end
     end
 
-    it "should return an empty return array for posts when the tag word is not proper" do
-      get :index, params: {tags: "nothing"}
-      returned_json = JSON.parse(response.body)
-      expect(returned_json["posts"].length()).to eq 0
-    end
-
-    it "should return a 200 status when the tag word isn't proper (however posts array is empty)" do
-      get :index, params: {tags: "nothing"}
-      returned_json = JSON.parse(response.body)
-      expect(response.status).to eq 200
-    end
-
-    it "should return a non-zero length posts array, for a proper tag word " do
-      get :index, params: {tags: "culture"}
-      returned_json = JSON.parse(response.body)
-      expect(returned_json["posts"].length()).not_to eq 0
-    end
 
     #SortBy Status Testing
 
@@ -118,7 +123,7 @@ RSpec.describe Api::PostsController, type: :controller do
 
     ### direction parameter testing
 
-    it "should return a a popularity count for the first element greater than or equal to the second (desc order)" do
+    it "should return a popularity count for the first element greater than or equal to the second (desc order)" do
       get :index, params: {tags: "culture", sortBy:"popularity", direction:"desc"}
       returned_json = JSON.parse(response.body)
       expect(returned_json["posts"][0]["popularity"]).to be >= returned_json["posts"][1]["popularity"]
