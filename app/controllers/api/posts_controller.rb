@@ -8,6 +8,8 @@ module Api
       if params[:tags]
         tags = sanitize_tags(params[:tags])
       end
+      # puts(tags)
+
       sort = params[:sortBy]
       direction = params[:direction]
       posts = []
@@ -26,7 +28,7 @@ module Api
 
     private
       def sanitize_tags(tags)
-        return tags.gsub(/[!@#$%^&*()-=_+|;':".<>?']/, '').delete("[]").split(",")
+        return tags.gsub(/[!@#$%^&*()=_+|;':".<>?']/, '').delete("[]").split(",")
       end
 
       def post_params

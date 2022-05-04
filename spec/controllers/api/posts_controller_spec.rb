@@ -9,67 +9,78 @@ RSpec.describe Api::PostsController, type: :controller do
 
     #Tags Status Testing
     context "if only tag param is supplied" do
-      it "should return a 400 status with message Tags Parameter Required when tag is nil" do
+      it "when tag is nil, should return a 400 status with message Tags Parameter Required" do
         get :index, params: {tags: nil}
         returned_json = JSON.parse(response.body)
         expect(response.status).to eq 400
         expect(returned_json["error"]).to eq "Tags parameter is required"
       end
 
-      it "should return an empty return array for posts when the tag word is not proper" do
+      it "when the tag word is not proper, should return a status 200 an empty return array for posts" do
         get :index, params: {tags: "nothing"}
         returned_json = JSON.parse(response.body)
+        expect(response.status).to eq 200
         expect(returned_json["posts"].length()).to eq 0
       end
 
-      it "should return a 200 status when the tag word isn't proper (however posts array is empty)" do
+      it "when the tag word isn't proper, should return a 200 status(however posts array is empty)" do
         get :index, params: {tags: "nothing"}
         returned_json = JSON.parse(response.body)
         expect(response.status).to eq 200
       end
 
-      it "should return a non-zero length posts array, for a proper tag word " do
+      it "when word tag is proper should return a non-zero length posts array" do
         get :index, params: {tags: "culture"}
         returned_json = JSON.parse(response.body)
+        expect(response.status).to eq 200
         expect(returned_json["posts"].length()).not_to eq 0
       end
     end
 
 
     #SortBy Status Testing
+    context "if sortBy is supplied" do
+      it "when sortBy parameter is correct should return a 200 status" do
+        get :index, params: {tags: "culture", sortBy:"likes"}
+        returned_json = JSON.parse(response.body)
+        expect(response.status).to eq 200
+      end
 
-    it "should return a 200 status when sortBy parameter is correct" do
-      get :index, params: {tags: "culture", sortBy:"likes"}
-      returned_json = JSON.parse(response.body)
-      expect(response.status).to eq 200
+      it "when the sortBy parameter is invalid should return a 400 status with message sortBy Parameter Invalid" do
+        get :index, params: {tags: "culture", sortBy:"notCorrect"}
+        returned_json = JSON.parse(response.body)
+        expect(response.status).to eq 400
+        expect(returned_json["error"]).to eq "sortBy parameter is invalid"
+      end
+
+      it "when sortBy parameter is correct should return a 200 status" do
+        get :index, params: {tags: "culture", sortBy:"likes"}
+        returned_json = JSON.parse(response.body)
+        expect(response.status).to eq 200
+      end
     end
 
-    it "should return a 400 status with message sortBy Parameter Invalid when the sortBy parameter is invalid" do
-      get :index, params: {tags: "culture", sortBy:"notCorrect"}
-      returned_json = JSON.parse(response.body)
-      expect(response.status).to eq 400
-      expect(returned_json["error"]).to eq "sortBy parameter is invalid"
-    end
-
-    it "should return a 200 status when sortBy parameter is correct" do
-      get :index, params: {tags: "culture", sortBy:"likes"}
-      returned_json = JSON.parse(response.body)
-      expect(response.status).to eq 200
-    end
-
-    it "should return a 400 status with message sortBy Parameter Invalid when the sortBy parameter is invalid" do
-      get :index, params: {tags: "culture", sortBy:"notCorrect"}
-      returned_json = JSON.parse(response.body)
-      expect(response.status).to eq 400
-      expect(returned_json["error"]).to eq "sortBy parameter is invalid"
-    end
+      it "when the sortBy parameter is invalid should return a 400 status with message sortBy Parameter Invalid" do
+        get :index, params: {tags: "culture", sortBy:"notCorrect"}
+        returned_json = JSON.parse(response.body)
+        expect(response.status).to eq 400
+        expect(returned_json["error"]).to eq "sortBy parameter is invalid"
+      end
 
     # Direction Status Testing
-    it "should return a 200 status with proper direction parameter (asc)" do
-      get :index, params: {tags: "culture", sortBy:"likes", direction:"asc"}
-      returned_json = JSON.parse(response.body)
-      expect(response.status).to eq 200
+    context "if direction is supplied" do
+      it "when proper direction parameter (asc) is given should return a 200 status" do
+        get :index, params: {tags: "culture", sortBy:"likes", direction:"asc"}
+        returned_json = JSON.parse(response.body)
+        expect(response.status).to eq 200
+      end
+      it "when proper direction parameter (desc) is given should return a 200 status" do
+        get :index, params: {tags: "culture", sortBy:"likes", direction:"desc"}
+        returned_json = JSON.parse(response.body)
+        expect(response.status).to eq 200
+      end
     end
+
 
     it "should return a 200 status with proper direction parameter (desc)" do
       get :index, params: {tags: "culture", sortBy:"likes", direction:"desc"}
@@ -82,6 +93,18 @@ RSpec.describe Api::PostsController, type: :controller do
       returned_json = JSON.parse(response.body)
       expect(response.status).to eq 400
       expect(returned_json["error"]).to eq "sortBy parameter is invalid"
+    end
+
+
+    ### Tags Parameter Testing
+    context "if tag parameter is supplied" do
+      it "when there are multiple tags, should return different array than with a single tag" do
+        get :index, params: {tags: "culture", sortBy:"likes"}
+        first_response = JSON.parse(response.body)
+        get :index, params: {tags: "culture,tech", sortBy:"likes"}
+        second_response = JSON.parse(response.body)
+        expect(first_response).not_to match_array second_response
+      end
     end
 
 
@@ -118,9 +141,6 @@ RSpec.describe Api::PostsController, type: :controller do
       expect(returned_json["posts"][2]["id"]).to be <= returned_json["posts"][3]["id"]
       expect(returned_json["posts"][5]["id"]).to be <= returned_json["posts"][6]["id"]
     end
-
-
-
     ### direction parameter testing
 
     it "should return a popularity count for the first element greater than or equal to the second (desc order)" do
@@ -134,7 +154,5 @@ RSpec.describe Api::PostsController, type: :controller do
       returned_json = JSON.parse(response.body)
       expect(returned_json["posts"][4]["popularity"]).to be <= returned_json["posts"][5]["popularity"]
     end
-
-
   end
 end
